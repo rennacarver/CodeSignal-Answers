@@ -1,11 +1,43 @@
 CREATE PROCEDURE solution()
 BEGIN
-	DECLARE requestslength INT DEFAULT 0;
-	SELECT COUNT(*) FROM requests INTO requestslength;
 	
-	WHILE requestslength > 0 DO
-    SELECT * FROM requests WHERE request_id = requestslength;
-    SET requestslength = requestslength - 1;
-  	END WHILE;
+	-- Allow purchases for any requests that have been reserved by the correct person
+	-- Some redudancy (seats.person_id is already set, requests.request will always be 2 when seat is reserved?, seats.status will always be 1 when requests.person_id = seats.person_id)
+	UPDATE seats
+	JOIN requests ON requests.seat_no = seats.seat_no
+	SET seats.person_id = requests.person_id, seats.status = 2
+	WHERE seats.person_id = requests.person_id AND seats.status = 1 AND requests.request = 2;
 	
+	-- Allow reservations for any requests that have no reservations
+	UPDATE seats
+	JOIN requests ON requests.seat_no = seats.seat_no
+	SET seats.person_id = requests.person_id, seats.status = 1
+	WHERE seats.status = 0 AND requests.request = 1;
+	
+	-- Allow purchases for any requests that have no reservations
+	UPDATE seats
+	JOIN requests ON requests.seat_no = seats.seat_no
+	SET seats.person_id = requests.person_id, seats.status = 2
+	WHERE seats.status = 0 AND requests.request = 2;
+	
+	-- List all seats that are reserved and have a purchase request by correct person_id
+	-- SELECT *
+	-- FROM requests
+	-- JOIN seats ON requests.seat_no = seats.seat_no
+	-- WHERE seats.person_id = requests.person_id AND seats.status = 1 AND requests.request = 2;
+	
+	-- List all seats that are not reserved and have a reservation request
+	-- SELECT *
+	-- FROM requests
+	-- JOIN seats ON requests.seat_no = seats.seat_no
+	-- WHERE seats.status = 0 AND requests.request = 1;
+	
+	-- List all seats that are not reserved and have a purchase request
+	-- SELECT *
+	-- FROM requests
+	-- JOIN seats ON requests.seat_no = seats.seat_no
+	-- WHERE seats.status = 0 AND requests.request = 2;
+	
+	SELECT *
+	FROM seats;
 END
