@@ -1,0 +1,11 @@
+CREATE PROCEDURE solution()
+BEGIN
+	DECLARE requestslength INT DEFAULT 0;
+	SELECT COUNT(*) FROM requests INTO requestslength;
+	
+	WHILE requestslength > 0 DO
+    SELECT * FROM requests WHERE request_id = requestslength;
+    SET requestslength = requestslength - 1;
+  	END WHILE;
+	
+END
